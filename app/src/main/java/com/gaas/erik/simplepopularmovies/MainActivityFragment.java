@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.gaas.erik.simplepopularmovies.adapters.MovieAdapter;
 import com.gaas.erik.simplepopularmovies.data.MovieManager;
@@ -63,8 +64,16 @@ public class MainActivityFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_main, container, false);
         ButterKnife.bind(this, view);
 
+
         if (movieResults == null) {
-            populateMovies(SORT_OPTIONS[0]);
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    populateMovies(SORT_OPTIONS[0]);
+                    Toast.makeText(getActivity(), "help i'm stuck in non-UI", Toast.LENGTH_LONG).show();
+                }
+            });
+
         } else {
             mGridview.setAdapter(new MovieAdapter(
                     getActivity(),
@@ -75,8 +84,16 @@ public class MainActivityFragment extends Fragment {
 
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                populateMovies(SORT_OPTIONS[position]);
+            public void onItemSelected(AdapterView<?> parent, View view, final int position, long id) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        populateMovies(SORT_OPTIONS[position]);
+                        Toast.makeText(getActivity(), "help i'm stuck in non-UI", Toast.LENGTH_LONG).show();
+
+                    }
+                });
+
             }
 
             @Override

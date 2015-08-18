@@ -10,7 +10,7 @@ import retrofit.RestAdapter;
  */
 public class MovieManager {
 
-    public static final String API_KEY = "API KEY GOES HERE!!!";
+    public static final String API_KEY = "YOUR API KEY HERE";
 
     public static RestAdapter restAdapter = new RestAdapter.Builder()
             .setEndpoint("https://api.themoviedb.org/3")
