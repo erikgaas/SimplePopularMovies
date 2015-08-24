@@ -46,21 +46,21 @@ public class DetailFragment extends Fragment {
 
     public static final String BASE_IMAGE_URL = "http://image.tmdb.org/t/p/w342/";
 
-    public static final int COL_MOVIE_ID = 1;
-    public static final int COL_MOVIE_OVERVIEW = 2;
-    public static final int COL_MOVIE_RELEASE_DATE = 3;
-    public static final int COL_MOVIE_POSTER_PATH = 4;
-    public static final int COL_MOVIE_TITLE = 5;
-    public static final int COL_MOVIE_VOTE_AVERAGE = 6;
+    public static final int COL_MOVIE_ID = 0;
+    public static final int COL_MOVIE_OVERVIEW = 1;
+    public static final int COL_MOVIE_RELEASE_DATE = 2;
+    public static final int COL_MOVIE_POSTER_PATH = 3;
+    public static final int COL_MOVIE_TITLE = 4;
+    public static final int COL_MOVIE_VOTE_AVERAGE = 5;
 
-    public static final int COL_TRAILER_ID = 1;
-    public static final int COL_TRAILER_KEY = 2;
-    public static final int COL_TRAILER_NAME = 3;
-    public static final int COL_TRAILER_FOREIGN = 4;
+    public static final int COL_TRAILER_ID = 0;
+    public static final int COL_TRAILER_KEY = 1;
+    public static final int COL_TRAILER_NAME = 2;
+    public static final int COL_TRAILER_FOREIGN = 3;
 
-    public static final int COL_REVIEW_ID = 1;
-    public static final int COL_REVIEW_CONTENT = 2;
-    public static final int COL_REVIEW_FOREIGN = 3;
+    public static final int COL_REVIEW_ID = 0;
+    public static final int COL_REVIEW_CONTENT = 1;
+    public static final int COL_REVIEW_FOREIGN = 2;
 
     @Bind(R.id.movie_title)
     TextView movieTitle;
@@ -150,7 +150,6 @@ public class DetailFragment extends Fragment {
 
 
 
-
         if (movieResult == null) {
             Bundle args = this.getArguments();
             movieResult = args.getParcelable(MainActivityFragment.MOVIE_PARCEL);
@@ -169,6 +168,7 @@ public class DetailFragment extends Fragment {
                     @Override
                     public void failure(RetrofitError error) {
                         Log.v("Trailer Error", error.toString());
+                        Toast.makeText(getActivity(), "Can't get trailers. Sorry about that...", Toast.LENGTH_LONG).show();
                     }
                 });
                 MovieManager.getReviews(Integer.toString(movieResult.getId()), new Callback<Review>() {
@@ -181,17 +181,22 @@ public class DetailFragment extends Fragment {
                     @Override
                     public void failure(RetrofitError error) {
                         Log.v("Review Error", error.toString());
+                        Toast.makeText(getActivity(), "Couldn't get Reviews. Sorry about that...", Toast.LENGTH_LONG).show();
                     }
                 });
+            } else {
+                populateTrailers(trailers);
+                populateReviews(reviews);
             }
+
+
+
         } else {
+            Log.v("Are we here?", "populates stuff");
             populateTrailers(trailers);
             populateReviews(reviews);
         }
 
-/*        if (isFavorite == null) {
-            isFavorite = determineIfFavorite();
-        }*/
 
         movieTitle.setText(movieResult.getTitle());
         Picasso.with(getActivity()).load(BASE_IMAGE_URL + movieResult.getPosterPath()).into(moviePoster);
@@ -200,6 +205,8 @@ public class DetailFragment extends Fragment {
 
         //Add favorite button
         final Button dynamicFavorite = new Button(getActivity());
+        ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+
         if (isFavorite) {
             dynamicFavorite.setText("Remove from favorites");
         } else {
@@ -219,7 +226,7 @@ public class DetailFragment extends Fragment {
             }
         });
 
-        infoLayout.addView(dynamicFavorite);
+        infoLayout.addView(dynamicFavorite, lp);
 
 
         moviePlot.setText(movieResult.getOverview());
@@ -248,14 +255,6 @@ public class DetailFragment extends Fragment {
             tv.setText(reviewResult.getContent());
             movieReviewsLayout.addView(tv);
         }
-    }
-
-    private Boolean determineIfFavorite() {
-        ContentResolver resolver = getActivity().getContentResolver();
-        Cursor cursor = resolver.query(MovieContract.MovieEntry.buildMovieId(Integer.toString(movieResult.getId())), null, null, null, null);
-        Boolean result = cursor.getCount() == 1;
-        cursor.close();
-        return result;
     }
 
     private void addCurrentMovieInfoToDb(Button dynamicFavorite) {
@@ -297,20 +296,12 @@ public class DetailFragment extends Fragment {
                 MovieContract.MovieEntry.COLUMN_MOVIE_ID + " = ?",
                 new String[]{Integer.toString(movieResult.getId())});
 
-/*        for (TrailerResult trailer : trailers.getTrailerResults()) {
-            resolver.delete(MovieContract.TrailerEntry.CONTENT_URI,
-                    MovieContract.TrailerEntry.COLUMN_TRAILER_ID + " = ?",
-                    new String[]{trailer.getId()});
-        }*/
+
         resolver.delete(MovieContract.TrailerEntry.CONTENT_URI,
                 MovieContract.TrailerEntry.COLUMN_TRAILER_FOREIGN + " = ?",
                 new String[]{Integer.toString(movieResult.getId())});
 
-/*        for (ReviewResult review : reviews.getResults()) {
-            resolver.delete(MovieContract.ReviewEntry.CONTENT_URI,
-                    MovieContract.ReviewEntry.COLUMN_REVIEW_ID + " = ?",
-                    new String[]{review.getId()});
-        }*/
+
         resolver.delete(MovieContract.ReviewEntry.CONTENT_URI,
                 MovieContract.ReviewEntry.COLUMN_REVIEW_FOREIGN + " = ?",
                 new String[]{Integer.toString(movieResult.getId())});
@@ -326,15 +317,6 @@ public class DetailFragment extends Fragment {
         if (isFavorite) {
             Cursor trailerCursor = resolver.query(MovieContract.TrailerEntry.buildTrailerId(Integer.toString(movieResult.getId())), null, null, null, null);
             Cursor reviewCursor = resolver.query(MovieContract.ReviewEntry.buildReviewId(Integer.toString(movieResult.getId())), null, null, null, null);
-
-/*            movieCursor.moveToFirst();
-            Result dbMovie = new Result();
-            dbMovie.setId(movieCursor.getInt(COL_MOVIE_ID));
-            dbMovie.setOverview(movieCursor.getString(COL_MOVIE_OVERVIEW));
-            dbMovie.setReleaseDate(movieCursor.getString(COL_MOVIE_RELEASE_DATE));
-            dbMovie.setPosterPath(movieCursor.getString(COL_MOVIE_POSTER_PATH));
-            dbMovie.setPosterPath(movieCursor.getString(COL_MOVIE_TITLE));
-            dbMovie.setVoteAverage(movieCursor.getString(COL_MOVIE_VOTE_AVERAGE));*/
 
             Trailer dbActualTrailer = new Trailer();
             ArrayList<TrailerResult> dbTrailerArrayList = new ArrayList<TrailerResult>();
@@ -353,10 +335,11 @@ public class DetailFragment extends Fragment {
                 ReviewResult dbReviewResult = new ReviewResult();
                 dbReviewResult.setId(reviewCursor.getString(COL_REVIEW_ID));
                 dbReviewResult.setContent(reviewCursor.getString(COL_REVIEW_CONTENT));
+                dbReviewResultArrayList.add(dbReviewResult);
             }
             dbReview.setResults(dbReviewResultArrayList);
 
-/*            movieResult = dbMovie;*/
+
             trailers = dbActualTrailer;
             reviews = dbReview;
             trailerCursor.close();
