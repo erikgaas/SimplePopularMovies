@@ -1,12 +1,10 @@
 package com.gaas.erik.simplepopularmovies;
 
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.support.v7.app.AppCompatActivity;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,19 +20,28 @@ public class MainActivity extends ActionBarActivity {
 
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.fragment_container, mainActivityFragment).commit();
+        } else {
+            if (savedInstanceState != null) {
+                return;
+            }
+
+            MainActivityFragment mainActivityFragment = new MainActivityFragment();
+
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.tablet_movies, mainActivityFragment).commit();
         }
 
     }
 
 
-    @Override
+/*    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
-    }
+    }*/
 
-    @Override
+/*    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -46,6 +53,14 @@ public class MainActivity extends ActionBarActivity {
             return true;
         }
 
+        if (id == R.id.action_share) {
+            Toast.makeText(this, "I guess it worked", Toast.LENGTH_LONG).show();
+            return true;
+
+        }
+
         return super.onOptionsItemSelected(item);
-    }
+    }*/
+
+
 }

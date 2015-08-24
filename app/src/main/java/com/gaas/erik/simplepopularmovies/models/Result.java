@@ -3,16 +3,21 @@ package com.gaas.erik.simplepopularmovies.models;
 /**
  * Created by erik on 8/16/15.
  */
+
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.annotation.Generated;
 
 @Generated("org.jsonschema2pojo")
-public class Result {
+public class Result implements Parcelable {
 
     private boolean adult;
     private String backdropPath;
@@ -21,15 +26,23 @@ public class Result {
     private String originalLanguage;
     private String originalTitle;
     private String overview;
+    @SerializedName("release_date")
     private String releaseDate;
     @SerializedName("poster_path")
     private String posterPath;
     private float popularity;
     private String title;
     private boolean video;
-    private float voteAverage;
+    @SerializedName("vote_average")
+    private String voteAverage;
     private int voteCount;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+
+    //Put in the default constructor, but does it actually matter?
+
+    public Result() {
+
+    }
 
     /**
      *
@@ -252,7 +265,7 @@ public class Result {
      * @return
      * The voteAverage
      */
-    public float getVoteAverage() {
+    public String getVoteAverage() {
         return voteAverage;
     }
 
@@ -261,7 +274,7 @@ public class Result {
      * @param voteAverage
      * The vote_average
      */
-    public void setVoteAverage(float voteAverage) {
+    public void setVoteAverage(String voteAverage) {
         this.voteAverage = voteAverage;
     }
 
@@ -291,4 +304,67 @@ public class Result {
         this.additionalProperties.put(name, value);
     }
 
+
+    protected Result(Parcel in) {
+        adult = in.readByte() != 0x00;
+        backdropPath = in.readString();
+        if (in.readByte() == 0x01) {
+            genreIds = new ArrayList<Integer>();
+            in.readList(genreIds, Integer.class.getClassLoader());
+        } else {
+            genreIds = null;
+        }
+        id = in.readInt();
+        originalLanguage = in.readString();
+        originalTitle = in.readString();
+        overview = in.readString();
+        releaseDate = in.readString();
+        posterPath = in.readString();
+        popularity = in.readFloat();
+        title = in.readString();
+        video = in.readByte() != 0x00;
+        voteAverage = in.readString();
+        voteCount = in.readInt();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeByte((byte) (adult ? 0x01 : 0x00));
+        dest.writeString(backdropPath);
+        if (genreIds == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeList(genreIds);
+        }
+        dest.writeInt(id);
+        dest.writeString(originalLanguage);
+        dest.writeString(originalTitle);
+        dest.writeString(overview);
+        dest.writeString(releaseDate);
+        dest.writeString(posterPath);
+        dest.writeFloat(popularity);
+        dest.writeString(title);
+        dest.writeByte((byte) (video ? 0x01 : 0x00));
+        dest.writeString(voteAverage);
+        dest.writeInt(voteCount);
+    }
+
+    @SuppressWarnings("unused")
+    public static final Parcelable.Creator<Result> CREATOR = new Parcelable.Creator<Result>() {
+        @Override
+        public Result createFromParcel(Parcel in) {
+            return new Result(in);
+        }
+
+        @Override
+        public Result[] newArray(int size) {
+            return new Result[size];
+        }
+    };
 }

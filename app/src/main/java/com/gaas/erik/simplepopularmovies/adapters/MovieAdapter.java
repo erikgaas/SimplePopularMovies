@@ -51,13 +51,15 @@ public class MovieAdapter extends ArrayAdapter<Result> {
         else {
             holder = (MovieHolder)row.getTag();
         }
-        Result result = data.get(position);
-        Picasso.with(mContext).load(BASE_IMAGE_URL + result.getPosterPath()).into(holder.imgPoster);
+        Result movieResult = data.get(position);
+        Picasso.with(mContext).load(BASE_IMAGE_URL + movieResult.getPosterPath()).into(holder.imgPoster);
 
 
 
         return row;
     }
+
+
 
     static class MovieHolder
     {
